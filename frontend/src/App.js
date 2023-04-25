@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Transfer from './components/ui/Transfer';
-import BalancePage from './pages/Balance';
+import AccountPage from './pages/Account';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -15,7 +15,7 @@ const App = () => {
         <Route exact path="/" element={<Home />} />
         <Route exact path="/register" element={<Register />} />
         <Route exact path="/sign-in" element={<Login />} />
-        <Route path="/account" element={<BalancePage />} />
+        <Route path="/account" element={<AccountPage />} />
         <Route path="/account/transactions" element={<TransactionsPage />} />
         {/* <Route exact path="transfer" element={<Transfer />} /> */}
       </Routes>

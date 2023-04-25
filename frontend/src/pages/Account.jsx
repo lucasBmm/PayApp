@@ -4,6 +4,7 @@ import DepositSection from '../components/ui/Deposit';
 import Transfer from '../components/ui/Transfer';
 import authenticatedFetch from '../utils/AuthenticationFetch';
 import { Link } from 'react-router-dom';
+import Layout from '../components/ui/Layout';
 
 const BalancePageContainer = styled.div`
   display: flex;
@@ -68,7 +69,7 @@ const ToggleButton = styled.button`
   }
 `;
 
-const BalancePage = () => {
+const AccountPage = () => {
   const [balance, setBalance] = useState(100.00);
   const [showBalance, setShowBalance] = useState(false);
 
@@ -80,22 +81,24 @@ const BalancePage = () => {
   }, []);
 
   return (
-    <BalancePageContainer>
-      <BalanceContainer>
-        <BalanceTitle>Your Balance</BalanceTitle>
-        {balance !== null && (
-          <BalanceText>{showBalance ? `$${balance}` : '---'}</BalanceText>
-        )}
-        <ToggleButton onClick={() => setShowBalance(!showBalance)}>
-          {showBalance ? 'Hide Balance' : 'Show Balance'}
-        </ToggleButton>
-        <p>Your account information and balance will be displayed here.</p>
-        <Link to="/account/transactions">View Transactions History</Link>
-      </BalanceContainer>
-      <Transfer />
-      <DepositSection />
-    </BalancePageContainer>
+    <Layout>
+      <BalancePageContainer>
+        <BalanceContainer>
+          <BalanceTitle>Your Balance</BalanceTitle>
+          {balance !== null && (
+            <BalanceText>{showBalance ? `$${balance}` : '---'}</BalanceText>
+          )}
+          <ToggleButton onClick={() => setShowBalance(!showBalance)}>
+            {showBalance ? 'Hide Balance' : 'Show Balance'}
+          </ToggleButton>
+          <p>Your account information and balance will be displayed here.</p>
+          <Link to="/account/transactions">View Transactions History</Link>
+        </BalanceContainer>
+        <Transfer />
+        <DepositSection />
+      </BalancePageContainer>
+    </Layout>
   );
 };
 
-export default BalancePage;
+export default AccountPage;
