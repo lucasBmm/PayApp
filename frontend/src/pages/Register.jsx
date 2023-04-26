@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Layout from '../components/ui/Layout';
+import { setToken } from '../utils/TokenService';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterPage = styled.div`
   display: flex;
@@ -79,99 +81,102 @@ const SubmitButton = styled.button`
 `;
 
 const Register = () => {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [errors, setErrors] = useState({});
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
-        if (validateForm()) {
-            const data = { username, email, password, confirmPassword };
+    if (validateForm()) {
+      const data = { name, email, password };
 
-            fetch('rest/user/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-                .then((response) => response.json())
-                .then((data) => console.log(data))
-                .catch((error) => console.error(error));
-        }
-    };
+      fetch('user/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setToken(data.token);
+          navigate('/account');
+        })
+    }
+  };
 
-    const validateForm = () => {
-        const errors = {};
+  const validateForm = () => {
+    const errors = {};
 
-        if (!username) {
-            errors.username = 'Please enter a user name';
-        }
+    if (!name) {
+      errors.name = 'Please enter a user name';
+    }
 
-        if (!email) {
-            errors.email = 'Please enter an e-mail address';
-        } else if (!/\S+@\S+\.\S+/.test(email)) {
-            errors.email = 'Please enter a valid e-mail address';
-        }
+    if (!email) {
+      errors.email = 'Please enter an e-mail address';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = 'Please enter a valid e-mail address';
+    }
 
-        if (!password) {
-            errors.password = 'Please enter a password';
-        }
+    if (!password) {
+      errors.password = 'Please enter a password';
+    }
 
-        if (!confirmPassword) {
-            errors.confirmPassword = 'Please confirm your password';
-        } else if (password !== confirmPassword) {
-            errors.confirmPassword = 'Passwords do not match';
-        }
+    if (!confirmPassword) {
+      errors.confirmPassword = 'Please confirm your password';
+    } else if (password !== confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
+    }
 
-        setErrors(errors);
+    setErrors(errors);
 
-        return Object.keys(errors).length === 0;
-    };
+    return Object.keys(errors).length === 0;
+  };
 
-    return (
-        <Layout>
-            <RegisterPage>
-                <RegisterForm onSubmit={handleSubmit}>
-                    <RegisterTitle>Register</RegisterTitle>
-                    <InputField
-                        type="text"
-                        placeholder="User name"
-                        value={username}
-                        onChange={(event) => setUsername(event.target.value)}
-                    />
-                    {errors.username && <ErrorText>{errors.username}</ErrorText>}
-                    <InputField
-                        type="email"
-                        placeholder="E-mail"
-                        value={email}
-                        onChange={(event) => setEmail(event.target.value)}
-                    />
-                    {errors.email && <ErrorText>{errors.email}</ErrorText>}
-                    <InputField
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                    />
-                    {errors.password && <ErrorText>{errors.password}</ErrorText>}
-                    <InputField
-                        type="password"
-                        placeholder="Confirm password"
-                        value={confirmPassword}
-                        onChange={(event) => setConfirmPassword(event.target.value)}
-                    />
-                    {errors.confirmPassword && (
-                        <ErrorText>{errors.confirmPassword}</ErrorText>
-                    )}
-                    <SubmitButton type="submit">Submit</SubmitButton>
-                </RegisterForm>
-            </RegisterPage>
-        </Layout>
-    );
+  return (
+    <Layout>
+      <RegisterPage>
+        <RegisterForm onSubmit={handleSubmit}>
+          <RegisterTitle>Register</RegisterTitle>
+          <InputField
+            type="text"
+            placeholder="User name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+          {errors.username && <ErrorText>{errors.username}</ErrorText>}
+          <InputField
+            type="email"
+            placeholder="E-mail"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+          {errors.email && <ErrorText>{errors.email}</ErrorText>}
+          <InputField
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+          {errors.password && <ErrorText>{errors.password}</ErrorText>}
+          <InputField
+            type="password"
+            placeholder="Confirm password"
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+          />
+          {errors.confirmPassword && (
+            <ErrorText>{errors.confirmPassword}</ErrorText>
+          )}
+          <SubmitButton type="submit">Submit</SubmitButton>
+        </RegisterForm>
+      </RegisterPage>
+    </Layout>
+  );
 };
 
 export default Register;

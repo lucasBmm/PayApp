@@ -10,15 +10,14 @@ import br.com.PayApp.app.repository.TransactionRepository;
 import br.com.PayApp.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -74,6 +73,11 @@ public class UserService {
         return userRepository.findByName(username);
     }
 
+    public UserDetails loadUserByEmail(String email) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
+    }
     public Transaction createTransaction(Long fromAccountId, Long toAccountId, BigDecimal amount, TransactionType type) {
         // Load the accounts involved in the transaction
         Account fromAccount = accountRepository.findById(Math.toIntExact(fromAccountId)).orElseThrow(() -> new IllegalArgumentException("From account not found"));
@@ -97,5 +101,9 @@ public class UserService {
 
         // Save the transaction
         return transactionRepository.save(transaction);
+    }
+
+    public Optional<User> findByEmail(String userEmail) {
+        return userRepository.findByEmail(userEmail);
     }
 }

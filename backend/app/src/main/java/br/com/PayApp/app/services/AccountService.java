@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 @Service
 public class AccountService {
@@ -40,14 +41,25 @@ public class AccountService {
     }
 
     @Transactional
-    public Account deposit(String accountNumber, BigDecimal amount) {
-        Account account = findAccountByAccountNumber(accountNumber);
-
+    public Account deposit(Account account, BigDecimal amount) {
         account.setBalance(account.getBalance().add(amount));
+
         return accountRepository.save(account);
     }
 
     public void save(Account fromAccount) {
         accountRepository.save((fromAccount));
+    }
+
+    public Optional<Account> findByUserId(int id) {
+        return accountRepository.findByUserId(id);
+    }
+
+    public Account findAccountByUserIdAndAccountNumber(int id, String accountNumber) {
+        return accountRepository.findAccountByUserIdAndAccountNumber(id, accountNumber);
+    }
+
+    public Optional<Account> findAccountByUserId(int id) {
+        return accountRepository.findByUserId(id);
     }
 }

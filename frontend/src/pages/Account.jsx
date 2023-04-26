@@ -5,27 +5,60 @@ import Transfer from '../components/ui/Transfer';
 import authenticatedFetch from '../utils/AuthenticationFetch';
 import { Link } from 'react-router-dom';
 import Layout from '../components/ui/Layout';
+import TransactionsPage from './Transactions';
+import { faSyncAlt } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { keyframes } from 'styled-components';
 
 const BalancePageContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  padding: 2% 0 10% 0;
+
+  @media screen and (max-width: 480px) {
+    flex-direction: column;
+    padding: 15% 0 15% 0;
+    justify-content: center;
+  }
 `;
 
 const BalanceContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 400px;
-  width: 100%;
-  margin-top: 2rem;
   padding: 2rem;
+  margin: 3% 10px;
   border-radius: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   background-color: white;
 
   @media screen and (max-width: 480px) {
     padding: 1rem;
+    justify-content: center;
+  }
+`;
+
+const RightContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40%;
+
+  @media screen and (max-width: 480px) {
+    width: 90%;
+    margin: 0 auto;
+  }
+`;
+
+const LeftContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+
+  @media screen and (max-width: 480px) {
+    width: 90%;
+    margin: 0 auto;
   }
 `;
 
@@ -49,6 +82,25 @@ const BalanceText = styled.p`
   }
 `;
 
+const spinAnimation = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const ReloadIcon = styled(FontAwesomeIcon)`
+  font-size: 1.5rem;
+  color: #3f51b5; 
+
+  &:hover {
+    cursor: pointer;
+    animation: ${spinAnimation} 3s linear infinite;
+  }
+`;
+
 const ToggleButton = styled.button`
   background-color: #1877f2;
   color: white;
@@ -69,33 +121,49 @@ const ToggleButton = styled.button`
   }
 `;
 
+
 const AccountPage = () => {
-  const [balance, setBalance] = useState(100.00);
+  const [balance, setBalance] = useState(0);
   const [showBalance, setShowBalance] = useState(false);
+  const [isUpdatingBalance, setIsUpdatingBalance] = useState(false);
+  const [userAccount, setAccount] = useState(null);
 
   useEffect(() => {
-    authenticatedFetch('rest/user/balance')
-      .then((response) => response.json())
-      .then((data) => setBalance(data.balance))
-      .catch((error) => console.error(error));
+    fetchBalance();
   }, []);
+
+  const fetchBalance = () => {
+    setIsUpdatingBalance(true);
+    authenticatedFetch('account/balance')
+      .then((response) => response.json())
+      .then((data) => {
+        setBalance(data.balance);
+        setAccount(data.accountNumber)
+      })
+      .catch((error) => console.log(error))
+      .finally(() => setIsUpdatingBalance(false));
+  };
 
   return (
     <Layout>
       <BalancePageContainer>
-        <BalanceContainer>
-          <BalanceTitle>Your Balance</BalanceTitle>
-          {balance !== null && (
-            <BalanceText>{showBalance ? `$${balance}` : '---'}</BalanceText>
-          )}
-          <ToggleButton onClick={() => setShowBalance(!showBalance)}>
-            {showBalance ? 'Hide Balance' : 'Show Balance'}
-          </ToggleButton>
-          <p>Your account information and balance will be displayed here.</p>
-          <Link to="/account/transactions">View Transactions History</Link>
-        </BalanceContainer>
-        <Transfer />
-        <DepositSection />
+        <LeftContainer>
+          <BalanceContainer>
+            <BalanceTitle>Your Balance</BalanceTitle>
+            {balance !== null && <BalanceText>{showBalance ? `$${balance}` : '---'}</BalanceText>}
+            <ToggleButton onClick={() => setShowBalance(!showBalance)}>
+              {showBalance ? 'Hide Balance' : 'Show Balance'}
+            </ToggleButton>
+            <p>Your account number: {userAccount} </p>
+            <ReloadIcon onClick={fetchBalance} disabled={isUpdatingBalance} icon={faSyncAlt} />
+            {isUpdatingBalance ? 'Updating Balance...' : 'Reload Balance'}
+          </BalanceContainer>
+          {userAccount && <TransactionsPage accountNumber={userAccount} />}
+        </LeftContainer>
+        <RightContainer>
+          <Transfer userAccount={userAccount} />
+          <DepositSection />
+        </RightContainer>
       </BalancePageContainer>
     </Layout>
   );

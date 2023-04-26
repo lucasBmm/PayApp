@@ -5,6 +5,7 @@ import br.com.PayApp.app.record.JwtResponse;
 import br.com.PayApp.app.record.UserLoginRequest;
 import br.com.PayApp.app.record.UserRecord;
 import br.com.PayApp.app.services.UserService;
+import br.com.PayApp.app.utils.JwtUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,18 +15,20 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("rest/")
 public class UserController {
 
     // Add UserService
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     private final AuthenticationManager authenticationManager;
 
@@ -39,20 +42,46 @@ public class UserController {
         return "Hello, world";
     }
 
+    @GetMapping("/rest/user/test")
+    public ResponseEntity<String> getEmailFromToken(@RequestHeader("Authorization") String token) {
+        // Remove "Bearer " from the token
+        String jwtToken = token.substring(7);
+
+        if (jwtUtil.validateToken(jwtToken)) {
+            String email = jwtUtil.getEmailFromToken(jwtToken);
+            return ResponseEntity.ok(email);
+        } else {
+            return ResponseEntity.badRequest().body("Invalid or expired token");
+        }
+    }
+
     // Update createUser method
-    @PostMapping("/user")
-    public ResponseEntity<User> createUser(@Validated @RequestBody UserRecord userDTO) {
+    @PostMapping("rest/user/register")
+    public ResponseEntity createUser(@Validated @RequestBody UserRecord userDTO) {
         User createdUser = userService.createUser(userDTO);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+        String token = jwtUtil.generateToken(createdUser.getEmail());
+
+        return ResponseEntity.ok(new JwtResponse(token));
     }
 
-    @PostMapping("/login")
+    @PostMapping("rest/user/login")
     public ResponseEntity efetuarLogin(@RequestBody @Valid UserLoginRequest dados) {
-        var token = new UsernamePasswordAuthenticationToken(dados.email(), dados.password());
-        var authentication = authenticationManager.authenticate(token);
+        UserDetails userDetails;
+        try {
+            userDetails = userService.loadUserByEmail(dados.email());
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+        }
 
-        return ResponseEntity.ok().build();
+        if (new BCryptPasswordEncoder().matches(dados.password(), userDetails.getPassword())) {
+            String token = jwtUtil.generateToken(dados.email());
+            return ResponseEntity.ok(new JwtResponse(token));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+        }
     }
+
+
 
 //    @PostMapping("/authenticate")
 //    public ResponseEntity<?> authenticate(@RequestBody UserLoginRequest loginRequest) {

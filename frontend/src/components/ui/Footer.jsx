@@ -149,8 +149,6 @@ const Footer = () => {
                 <PartnerLogo src="/img/react.png" alt="Partner 1 Logo" />
                 <PartnerLogo src="/img/github.png" alt="Partner 2 Logo" />
                 <PartnerLogo src="/img/ChatGPT-Logo.jpg" alt="Partner 3 Logo" />
-                <PartnerLogo src="/img/partner4.png" alt="Partner 4 Logo" />
-                <PartnerLogo src="/img/partner5.png" alt="Partner 5 Logo" />
             </PartnersSection>
             <Location>123 Main St, Suite 100, City, State 12345</Location>
             <CNPJ>CNPJ 00.000.000/0001-00</CNPJ>

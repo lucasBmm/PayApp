@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { NumericFormat } from 'react-number-format';
+import authenticatedFetch from '../../utils/AuthenticationFetch';
 
 const TransferPage = styled.div`
   display: flex;
@@ -85,7 +86,7 @@ const SubmitButton = styled.button`
   }
 `;
 
-const Transfer = () => {
+const Transfer = ({userAccount}) => {
     const [destAccount, setDestAccount] = useState('');
     const [destAccountValid, setDestAccountValid] = useState(false);
     const [transferType, setTransferType] = useState('PIX');
@@ -93,30 +94,19 @@ const Transfer = () => {
     const [transferValueValid, setTransferValueValid] = useState(false);
     const [accounts, setAccounts] = useState([]);
 
-    useEffect(() => {
-        fetch('rest/user/accounts', {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-        })
-            .then((response) => response.json())
-            .then((data) => setAccounts(data))
-            .catch((error) => console.error(error));
-    }, []);
-
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        const data = { destAccount, transferType, transferValue };
+        const data = { 
+          sourceAccount: userAccount, 
+          destinationAccount: destAccount,
+          amount: transferValue,
+          transactionType: transferType 
+        };
 
-        fetch('rest/transfer', {
+        authenticatedFetch('/transactions', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-            body: JSON.stringify(data),
+            body: JSON.stringify(data)
         })
             .then((response) => response.json())
             .then((data) => console.log(data))
@@ -124,7 +114,6 @@ const Transfer = () => {
     };
 
     return (
-        <TransferPage>
             <TransferForm onSubmit={handleSubmit}>
                 <TransferTitle>Make a Transfer</TransferTitle>
                 <InputField
@@ -153,7 +142,6 @@ const Transfer = () => {
                 />
                 <SubmitButton type="submit">Submit</SubmitButton>
             </TransferForm>
-        </TransferPage>
     );
 };
 

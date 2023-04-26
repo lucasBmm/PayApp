@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Layout from '../components/ui/Layout';
 import { setToken } from '../utils/TokenService';
 import { useNavigate } from "react-router-dom";
+import authenticatedFetch from '../utils/AuthenticationFetch';
 
 const LoginPage = styled.div`
   display: flex;
@@ -92,7 +93,7 @@ const Login = () => {
         if (validateForm()) {
             const data = { email, password };
 
-            fetch('rest/user/login', {
+            fetch('/user/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -103,7 +104,7 @@ const Login = () => {
                 .then((data) => {
                     console.log(data);
                     setToken(data.token);
-                    navigate('/');
+                    navigate('/account');
                 })
                 .catch((error) => console.error(error));
         }

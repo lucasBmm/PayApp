@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { NumericFormat } from 'react-number-format';
+import authenticatedFetch from '../../utils/AuthenticationFetch';
 
 const DepositForm = styled.form`
   display: flex;
@@ -75,17 +76,12 @@ const DepositSection = ({ onDeposit }) => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        fetch('rest/user/deposit', {
+        authenticatedFetch('account/deposit', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
             body: JSON.stringify({ amount: parseFloat(depositValue) }),
         })
             .then((response) => response.json())
             .then((data) => {
-                console.log(data);
                 setDepositValue('');
                 setDepositValueValid(false);
                 onDeposit();

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { css } from 'styled-components';
+import { deleteToken, getToken } from '../../utils/TokenService';
 
 const Nav = styled.nav`
   display: flex;
@@ -14,12 +15,8 @@ const Nav = styled.nav`
   left: 0;
   z-index: 1000;
   background: ${({ scrolled }) => (scrolled ? 'black' : 'transparent')};
+  color: ${({ scrolled }) => (scrolled ? 'white' : 'black')};
   transition: background 1s ease
-`;
-
-const HomeLink = styled.a`
-  color: white;
-  font-weight: bold;
 `;
 
 const NavLinks = styled.div`
@@ -28,9 +25,16 @@ const NavLinks = styled.div`
   margin: 0 10px;
 `;
 
+
+const HomeLink = styled.a`
+  font-weight: bold;
+  color: ${({ scrolled }) => (scrolled ? 'white' : 'black')};
+`;
+
+
 const NavLink = styled.a`
-  color: white;
   margin-left: 1rem;
+  color: ${({ scrolled }) => (scrolled ? 'white' : 'black')};
 `;
 
 const RegisterButton = styled.button`
@@ -39,8 +43,8 @@ const RegisterButton = styled.button`
   padding: 0.5rem 1rem;
   border-radius: 9999px;
   background-color: transparent;
-  border: 2px solid white;
-  color: white;
+  border: 2px solid ${({ scrolled }) => (scrolled ? 'white' : 'black')};
+  color: ${({ scrolled }) => (scrolled ? 'white' : 'black')};
   cursor: pointer;
 
   &:hover {
@@ -48,14 +52,22 @@ const RegisterButton = styled.button`
   }
 `;
 
+
 const NavigationBar = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [signedIn, setSignedIn] = useState(false);
+  const [signedIn, setSignedIn] = useState(getToken() != null);
   const navigate = useNavigate();
 
   const handleClick = () => {
     navigate('/register');
   };
+
+  const handleSignSinoutClick = () => {
+    if (signedIn) {
+      deleteToken();
+    } 
+    navigate("/sign-in");
+  }
 
   const handleScroll = () => {
     setScrolled(window.scrollY > 10);
@@ -70,11 +82,11 @@ const NavigationBar = () => {
 
   return (
     <Nav scrolled={scrolled}>
-      <HomeLink href="/">Home</HomeLink>
+      <HomeLink scrolled={scrolled} href="/">Home</HomeLink>
       <NavLinks>
-        <NavLink href="/account">Account</NavLink>
-        <NavLink href={signedIn ? '/sign-out' : '/sign-in'}>{signedIn ? 'Sign Out' : 'Sign In'}</NavLink>
-        <RegisterButton signedIn={signedIn} onClick={handleClick}>Register</RegisterButton>
+        {signedIn && <NavLink scrolled={scrolled} href="/account">Account</NavLink>}
+        <NavLink scrolled={scrolled} onClick={handleSignSinoutClick}>{signedIn ? 'Sign Out' : 'Sign In'}</NavLink>
+        <RegisterButton scrolled={scrolled} signedIn={signedIn} onClick={handleClick}>Register</RegisterButton>
       </NavLinks>
     </Nav>
   );

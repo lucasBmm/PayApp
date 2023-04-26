@@ -242,17 +242,10 @@ const PhoneImage = styled.img`
   bottom: 0;
   right: 5%;
   height: 90%;
-  z-index: -10;
+  z-index: 0;
 `;
 
 const Homepage = () => {
-    const partners = [
-        'img/ChatGPT-Logo.jpg',
-        'img/GitHub.png',
-        'img/react.png',
-        // Add more partner image paths...
-    ];
-
     const [animation1, setAnimation1] = React.useState('');
     const [animation2, setAnimation2] = React.useState('');
     const [animation3, setAnimation3] = React.useState('');
@@ -301,7 +294,7 @@ const Homepage = () => {
             </InfoSection>
             <ScrollTrigger onEnter={() => onEnter(setAnimation1)} onExit={() => onExit(setAnimation1)}>
                 <Section animation={animation1}>
-                    <SectionImage src="/img/easy-to-use.jpg" alt="Easy to Use" />
+                    <SectionImage src="/img/easy-to-use.png" alt="Easy to Use" />
                     <SectionContent>
                         <SectionHeading>Easy to Use</SectionHeading>
                         <SectionText>
@@ -312,7 +305,7 @@ const Homepage = () => {
             </ScrollTrigger>
             <ScrollTrigger onEnter={() => onEnterRight(setAnimation2)} onExit={() => onExit(setAnimation2)}>
                 <Section flexDirection="row-reverse" animation={animation2}>
-                    <SectionImage src="/img/innovative-solutions.jpg" alt="Innovative Solutions" />
+                    <SectionImage src="/img/innovation.webp" alt="Innovative Solutions" />
                     <SectionContent>
                         <SectionHeading>Innovative Solutions</SectionHeading>
                         <SectionText>
@@ -323,7 +316,7 @@ const Homepage = () => {
             </ScrollTrigger>
             <ScrollTrigger onEnter={() => onEnter(setAnimation3)} onExit={() => onExit(setAnimation3)}>
                 <Section animation={animation3}>
-                    <SectionImage src="/img/for-everyone.jpg" alt="For Everyone" />
+                    <SectionImage src="/img/for-everyone.webp" alt="For Everyone" />
                     <SectionContent>
                         <SectionHeading>For Everyone</SectionHeading>
                         <SectionText>
@@ -347,7 +340,7 @@ const Homepage = () => {
                     <RegisterButton>Register Now</RegisterButton>
                 </RegistrationTextSection>
                 <PhoneImage src="/img/phone.webp" alt="Homepage" />
-            </RegistrationSection>s
+            </RegistrationSection>
         </>
     );
 };
